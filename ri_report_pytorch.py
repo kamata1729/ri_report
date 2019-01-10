@@ -120,6 +120,17 @@ def loss_plot(train_loss, test_loss):
     plt.xlabel('epoch')
     plt.savefig('./loss.png')
 
+def visualize(model):
+    first_conv = list(model.children())[0]
+    params = list(params.parameters())[0]
+    params = params.cpu().numpy()
+    params.resize(params.shape[0], params.shape[2], params.shape[3])
+    for i, param in enumerate(params):
+        param -= param.min()
+        img = param.repeat(20, axis=0).repeat(20, axis=1)
+        img = np.clip(img, 0, 1)
+        img *= 255
+        cv2.imwrite("pics/{}.png".format(i), img)
 
 if __name__ == "__main__":
     model = MnistNet().cuda()
@@ -128,3 +139,6 @@ if __name__ == "__main__":
     criterion = nn.CrossEntropyLoss().cuda()
     scheduler = torch.optim.lr_scheduler.StepLR(optim, step_size=10, gamma=0.1)
     train(30, model, optim, criterion)
+
+    visualize(model)
+    
